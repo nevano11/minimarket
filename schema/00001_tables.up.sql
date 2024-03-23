@@ -1,43 +1,21 @@
-create table if not exists storage
+create table if not exists "user"
 (
     id           serial not null primary key,
-    name         text   not null,
-    code         text   not null unique,
-    is_available bool   not null default true
+    login        text   not null unique CHECK (char_length(login) <= 20 AND char_length(login) > 3),
+    password_hash     text   not null ,
+    token text null,
+    expiration_date timestamp null,
 );
 
-create table if not exists product
+create table if not exists post
 (
-    id   serial  not null primary key,
-    name text    not null,
-    size integer not null check (size > 0),
-    code text    not null unique
-);
+    id           serial not null primary key,
+    user_id integer not null,
+    name text not null CHECK (char_length(name) <= 40)
+    image text null,
+    price money not null,
 
-create table if not exists storage_product
-(
-    id              serial  not null primary key,
-    product_id      integer not null,
-    storage_id      integer not null,
-    count           integer not null check (count >= 0),
-
-    CONSTRAINT fk_storage
-        FOREIGN KEY (storage_id)
-            REFERENCES storage (id),
-    CONSTRAINT fk_product
-        FOREIGN KEY (product_id)
-            REFERENCES product (id)
-);
-
-create table if not exists reservation
-(
-    id                 serial  not null primary key,
-    request            text    null,
-    storage_product_id integer not null,
-    reserve_size       integer not null check (reserve_size > 0),
-    is_active          bool    not null default true,
-
-    CONSTRAINT fk_storage_product
-        FOREIGN KEY (storage_product_id)
-            REFERENCES storage_product (id)
+    CONSTRAINT fk_user
+        FOREIGN KEY (user_id)
+            REFERENCES user (id)
 );

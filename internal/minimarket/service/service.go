@@ -1,11 +1,11 @@
 package service
 
 import (
-	"github.com/nevano11/minimarket/internal/minimarket/entity"
+	"github.com/nevano11/minimarket/internal/minimarket/model"
 )
 
 type Storege interface {
-	GetProductsByStorageCode(string) ([]entity.Product, error)
+	GetProductsByStorageCode(string) ([]model.Product, error)
 	ReserveProducts([]string) (bool, error)
 	FreeProducts([]string) (bool, error)
 }
@@ -20,7 +20,7 @@ func NewService(storage Storege) *Service {
 	}
 }
 
-func (s *Service) GetProductsByStorageCode(storageCode string) ([]entity.Product, error) {
+func (s *Service) GetProductsByStorageCode(storageCode string) ([]model.Product, error) {
 	return s.storage.GetProductsByStorageCode(storageCode)
 }
 

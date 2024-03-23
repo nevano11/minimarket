@@ -1,1 +1,0 @@
-drop function if exists select_products_by_storage;

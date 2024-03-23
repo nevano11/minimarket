@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-playground/validator/v10"
-
 	"github.com/nevano11/minimarket/internal/minimarket/config"
 	"github.com/nevano11/minimarket/internal/minimarket/handler"
 	"github.com/nevano11/minimarket/internal/minimarket/repository/postgres"
@@ -14,14 +13,9 @@ import (
 )
 
 func Run(ctx context.Context, cfg Config) error {
-	appConfig, err := config.Load(cfg.ConfigPath)
+	appConfig, err := loadConfig(cfg.ConfigPath)
 	if err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
-	}
-
-	err = validator.New(validator.WithRequiredStructEnabled()).Struct(appConfig)
-	if err != nil {
-		return fmt.Errorf("error validating config: %w", err)
+		return err
 	}
 
 	db, err := postgres.NewPostgresDb(appConfig.Database)
@@ -39,10 +33,25 @@ func Run(ctx context.Context, cfg Config) error {
 		cfg.LogLevel,
 		appConfig.Server.Port,
 		routes)
-
 	if err != nil {
 		return fmt.Errorf("failed to start http server: %w", err)
 	}
 
+	defer apiserver.Shutdown(ctx)
+
 	return apiserver.Start()
+}
+
+func loadConfig(configPath string) (*config.Config, error) {
+	appConfig, err := config.Load(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load config: %w", err)
+	}
+
+	err = validator.New(validator.WithRequiredStructEnabled()).Struct(appConfig)
+	if err != nil {
+		return nil, fmt.Errorf("error validating config: %w", err)
+	}
+
+	return appConfig, nil
 }

@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  minimarket:
+    image: minimarket
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - minimarket-postgres
+    restart: unless-stopped
+  minimarket-postgres:
+    image: postgres
+    env_file:
+      - deployment/local/.env
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg-volume:/var/lib/postgresql/data
+volumes:
+  pg-volume:

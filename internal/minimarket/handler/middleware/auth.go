@@ -1,29 +1,44 @@
 package middleware
 
 import (
-	"time"
-
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
-func Auth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		t := time.Now()
+type UserType int
 
-		// Set example variable
-		c.Set("example", "12345")
+const (
+	UserType_UNKNOWN = iota
+	UserType_CLIENT
+)
 
-		// before request
+type AuthValidationService interface {
+	ValidateAuth() (UserType, error)
+}
 
-		c.Next()
+type Auth struct {
+	validationService AuthValidationService
+}
 
-		// after request
-		latency := time.Since(t)
-		log.Print(latency)
-
-		// access the status we are sending
-		status := c.Writer.Status()
-		log.Println(status)
+func New(validationService AuthValidationService) *Auth {
+	return &Auth{
+		validationService,
 	}
+}
+
+func (x *Auth) Validate(c *gin.Context) {
+	auth, err := x.validationService.ValidateAuth()
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	if auth == UserType_UNKNOWN {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "your credentials were not found, please log in",
+		})
+		return
+	}
+
+	c.Next()
 }
