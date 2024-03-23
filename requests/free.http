@@ -1,0 +1,8 @@
+// Освобождение продуктов с кодами 1 и 2
+POST http://localhost:8080/api/storage/free
+Content-Type: application/json
+
+[
+  "1",
+  "2"
+]
