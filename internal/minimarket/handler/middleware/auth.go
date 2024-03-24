@@ -1,19 +1,14 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
+	"context"
 	"net/http"
-)
 
-type UserType int
-
-const (
-	UserType_UNKNOWN = iota
-	UserType_CLIENT
+	"github.com/gin-gonic/gin"
 )
 
 type AuthValidationService interface {
-	ValidateAuth() (UserType, error)
+	IsAuthentificated(ctx context.Context, token string) (bool, error)
 }
 
 type Auth struct {
@@ -27,18 +22,29 @@ func New(validationService AuthValidationService) *Auth {
 }
 
 func (x *Auth) Validate(c *gin.Context) {
-	auth, err := x.validationService.ValidateAuth()
+	token := c.GetHeader("token")
+
+	errorMessage := "your credentials were not found, please log in"
+
+	if len(token) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": errorMessage,
+		})
+		return
+	}
+
+	auth, err := x.validationService.IsAuthentificated(c, token)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	if auth == UserType_UNKNOWN {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "your credentials were not found, please log in",
-		})
+	if auth {
+		c.Next()
 		return
 	}
 
-	c.Next()
+	c.JSON(http.StatusUnauthorized, gin.H{
+		"error": errorMessage,
+	})
 }

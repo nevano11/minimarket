@@ -1,2 +1,0 @@
-// Получение товаров на складе с кодом 2
-http://localhost:8080/api/storage/goods-in-stock?code=2

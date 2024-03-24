@@ -1,0 +1,10 @@
+// Авторизация
+PUT http://localhost:8080/create-post
+Content-Type: application/json
+token: $2a$08$DZlPccPgIrplSwpdlC4jrufT4EEXNGSWTRXs7dLqtL.dCQklDRPqC
+
+{
+  "name": "Щетка для машины 1000",
+  "price": 10000,
+  "image": "asdasdsad"
+}

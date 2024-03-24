@@ -3,13 +3,16 @@ package bootstrap
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/nevano11/minimarket/internal/minimarket/config"
 	"github.com/nevano11/minimarket/internal/minimarket/handler"
+	"github.com/nevano11/minimarket/internal/minimarket/handler/middleware"
 	"github.com/nevano11/minimarket/internal/minimarket/repository/postgres"
 	"github.com/nevano11/minimarket/internal/minimarket/repository/postgres/repository"
 	"github.com/nevano11/minimarket/internal/minimarket/server"
 	"github.com/nevano11/minimarket/internal/minimarket/service"
+	"github.com/nevano11/minimarket/internal/minimarket/service/auth"
 )
 
 func Run(ctx context.Context, cfg Config) error {
@@ -24,8 +27,11 @@ func Run(ctx context.Context, cfg Config) error {
 	}
 
 	storage := repository.NewRepository(db)
-	svc := service.NewService(storage)
-	httpHandler := handler.NewHttpHandler(svc)
+
+	authService := auth.New(storage)
+	svc := service.NewService(storage, authService)
+
+	httpHandler := handler.NewHttpHandler(svc, authService, authService, middleware.New(authService))
 
 	routes := httpHandler.InitRoutes()
 

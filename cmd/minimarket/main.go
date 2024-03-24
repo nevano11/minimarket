@@ -30,6 +30,7 @@ func main() {
 
 	err = bootstrap.Run(ctx, bootstrap.Config{
 		ConfigPath: configPath,
+		LogLevel:   logLevel,
 	})
 
 	if err != nil {

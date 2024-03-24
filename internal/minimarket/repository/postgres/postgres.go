@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"fmt"
-
 	"github.com/jmoiron/sqlx"
 	"github.com/nevano11/minimarket/pkg/config"
 )

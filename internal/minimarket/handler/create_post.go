@@ -10,33 +10,39 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (h *HttpHandler) signUp(ctx *gin.Context) {
-	ctxWithTimeout, cancel := context.WithTimeout(ctx, signUpMaxDuration)
+func (h *HttpHandler) createPost(ctx *gin.Context) {
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, createPostMaxDuration)
 	defer cancel()
 
-	var reqData model.LoginForm
+	token := ctx.GetHeader("token")
+	if len(token) == 0 {
+		log.Warnf("failed to parse token from header")
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "authorization token not found",
+		})
+		return
+	}
+
+	var reqData model.Post
 
 	if err := ctx.BindJSON(&reqData); err != nil {
 		log.Errorf("failed to bind Json: %s", err.Error())
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid data",
-		})
+		ctx.JSON(http.StatusBadRequest, "invalid body")
 		return
 	}
 
 	if err := validator.New(validator.WithRequiredStructEnabled()).Struct(reqData); err != nil {
 		log.Errorf("validating of login form failed: %s", err.Error())
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "the login and password are not secure enough",
+			"error": "errors on data",
 		})
 		return
 	}
 
-	data := reqData.ToRegistrationData()
-	if err := h.authService.SignUp(ctxWithTimeout, data); err != nil {
-		log.Errorf("failed to sign up: %s", err.Error())
+	if err := h.postService.CreatePost(ctxWithTimeout, reqData, token); err != nil {
+		log.Errorf("validating of login form failed: %s", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "failed to sign up. May be user with that login is already exists",
+			"error": "failed to create post",
 		})
 		return
 	}

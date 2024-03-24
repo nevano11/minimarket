@@ -1,33 +1,36 @@
 package service
 
 import (
+	"context"
+
 	"github.com/nevano11/minimarket/internal/minimarket/model"
 )
 
-type Storege interface {
-	GetProductsByStorageCode(string) ([]model.Product, error)
-	ReserveProducts([]string) (bool, error)
-	FreeProducts([]string) (bool, error)
+type Storage interface {
+	GetPosts(ctx context.Context, filter model.PostFilter, token *string) ([]model.PostAbout, error)
+	CreatePost(ctx context.Context, post model.Post, token string) error
+}
+
+type AuthValidationService interface {
+	IsAuthentificated(ctx context.Context, token string) (bool, error)
 }
 
 type Service struct {
-	storage Storege
+	storage       Storage
+	authValidator AuthValidationService
 }
 
-func NewService(storage Storege) *Service {
+func NewService(storage Storage, authValidator AuthValidationService) *Service {
 	return &Service{
-		storage: storage,
+		storage:       storage,
+		authValidator: authValidator,
 	}
 }
 
-func (s *Service) GetProductsByStorageCode(storageCode string) ([]model.Product, error) {
-	return s.storage.GetProductsByStorageCode(storageCode)
+func (x *Service) GetPosts(ctx context.Context, filter model.PostFilter, token *string) ([]model.PostAbout, error) {
+	return x.storage.GetPosts(ctx, filter, token)
 }
 
-func (s *Service) ReserveProducts(productCodes []string) (bool, error) {
-	return s.storage.ReserveProducts(productCodes)
-}
-
-func (s *Service) FreeProducts(productCodes []string) (bool, error) {
-	return s.storage.FreeProducts(productCodes)
+func (x *Service) CreatePost(ctx context.Context, post model.Post, token string) error {
+	return x.storage.CreatePost(ctx, post, token)
 }
