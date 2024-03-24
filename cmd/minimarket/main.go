@@ -15,7 +15,7 @@ func main() {
 		logLevel   string
 	)
 
-	flag.StringVar(&configPath, "config", "cmd/minimarket/config.yaml", "path to config")
+	flag.StringVar(&configPath, "config", "cmd/minimarket/config-example.yaml", "path to config")
 	flag.StringVar(&logLevel, "log-level", "debug", "level of logging")
 	flag.Parse()
 
