@@ -32,8 +32,9 @@ func (x *Repository) GetPosts(ctx context.Context, filter model.PostFilter, toke
 	}
 
 	queryBuilder := strings.Builder{}
-	queryBuilder.WriteString(`SELECT name, img "image", price, user_id = :uid as is_current_user 
+	queryBuilder.WriteString(`SELECT name, description, img "image", price, u.login login, user_id = :uid as is_current_user 
 			FROM post p
+			LEFT JOIN "user" u ON u.id = p.user_id 
           	WHERE true`)
 
 	if filter.MinPrice != nil {

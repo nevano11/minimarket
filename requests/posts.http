@@ -1,6 +1,6 @@
 // Авторизация
 GET http://localhost:8080/posts?page-number=1&page-size=10&min-price=100&max-price=2000&price-order=0&date-order=1
 Content-Type: application/json
-token: $2a$08$DZlPccPgIrplSwpdlC4jrufT4EEXNGSWTRXs7dLqtL.dCQklDRPqC
+token: $2a$08$cXRFGZp7gDMywtKHoOR/5eC8AJQYnIUbWdc7snBoJZejWs/bS.wV2
 
 {}

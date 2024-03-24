@@ -17,19 +17,20 @@ func (x *Repository) CreatePost(ctx context.Context, post model.Post, token stri
 	}
 
 	ns, err := x.db.PrepareNamedContext(ctx, `
-		INSERT INTO post (user_id, name, price, img, created_at)
-		VALUES (:uid, :name, :price, :img, :created_at)
+		INSERT INTO post (user_id, name, description, price, img, created_at)
+		VALUES (:uid, :name, :description, :price, :img, :created_at)
 	`)
 	if err != nil {
 		return err
 	}
 
 	if _, err = ns.ExecContext(ctx, map[string]interface{}{
-		"uid":        id,
-		"name":       post.Name,
-		"price":      post.Price,
-		"img":        post.Image,
-		"created_at": time.Now(),
+		"uid":         id,
+		"name":        post.Name,
+		"description": post.Description,
+		"price":       post.Price,
+		"img":         post.Image,
+		"created_at":  time.Now(),
 	}); err != nil {
 		return err
 	}
